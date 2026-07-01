@@ -148,10 +148,25 @@ button{cursor:pointer;border:none;background:none;outline:none}
 .detail-drop-line{height:3px;background:var(--primary);border-radius:2px;margin:3px 0;flex-shrink:0;pointer-events:none}
 .detail-empty{padding:28px 0;text-align:center;color:var(--text-faint);font-size:14px}
 .detail-foot{padding:8px 12px 10px;text-align:center;font-size:11px;color:var(--text-faint);border-top:1px solid var(--border);flex-shrink:0}
+
+/* === スクショモード === */
+#ssHdr{display:none;flex-shrink:0;height:54px;align-items:center;justify-content:space-between;background:var(--surface);border-bottom:2px solid var(--border);padding:0 18px}
+.ss-title{font-size:17px;font-weight:700;letter-spacing:1px;color:var(--text)}
+.ss-ym{font-size:19px;font-weight:700;letter-spacing:1px;color:var(--text)}
+body.ss-mode #ssHdr{display:flex}
+body.ss-mode .hdr,body.ss-mode .mnav,body.ss-mode .names-sec{display:none!important}
+body.ss-mode .cal-grid{pointer-events:none}
+body.ss-mode .chip{font-size:9px;padding:1.5px 3px}
+body.ss-mode .dn-inner{font-size:10px;height:16px;min-width:16px}
+body.ss-mode .sep-chip{height:8px}
 </style>
 </head>
 <body>
 <div id="app">
+  <div id="ssHdr">
+    <span class="ss-title">当番表</span>
+    <span class="ss-ym" id="ssYm"></span>
+  </div>
   <div class="hdr">
     <button class="btn-reset-hdr" id="bReset">リセット</button>
     <h1>当番表</h1>
@@ -897,7 +912,18 @@ $('bPrev').addEventListener('click',()=>{ cM--; if(cM<1){cM=12;cY--;} selectDate
 $('bNext').addEventListener('click',()=>{ cM++; if(cM>12){cM=1;cY++;} selectDate(null); closeDetailOv(); renderAll(); });
 $('bYM').addEventListener('click',openYM);
 $('bReset').addEventListener('click',doReset);
-$('bExec').addEventListener('click',()=>{}); // 実行: 現在未実装
+$('bExec').addEventListener('click',()=>{
+  selectDate(null);
+  closeDetailOv();
+  $('ssYm').textContent=cY+'/'+pad(cM);
+  document.body.classList.add('ss-mode');
+  history.pushState({ss:true},'');
+});
+window.addEventListener('popstate',()=>{
+  if(document.body.classList.contains('ss-mode')){
+    document.body.classList.remove('ss-mode');
+  }
+});
 
 // 何もないところをタップで日付選択を解除
 $('namesSec').addEventListener('click',e=>{
